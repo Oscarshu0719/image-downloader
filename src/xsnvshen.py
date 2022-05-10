@@ -6,6 +6,7 @@ from typing import Tuple
 
 from downloader import Downloader
 
+
 class Xsnvshen(Downloader):
     def __init__(self, urls: dict, output: str, log: str) -> None:
         super().__init__(output, log)

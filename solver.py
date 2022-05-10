@@ -55,7 +55,11 @@ class Solver(object):
         with open(self.log, 'a') as log:
             log.write('\n'.join(self.error_msgs))
         
-        Imgur(imgur_urls, self.output, self.log)
-        KissGoddess(kiss_urls, self.output, self.log)
-        Xsnvshen(xsnvshen_urls, self.output, self.log)
-        Junmeitu(junmeitu_urls, self.output, self.log)
+        if len(imgur_urls) != 0:
+            Imgur(imgur_urls, self.output, self.log)
+        if len(kiss_urls['album']) != 0 or len(kiss_urls['model']) != 0:
+            KissGoddess(kiss_urls, self.output, self.log)
+        if len(xsnvshen_urls['album']) != 0 or len(xsnvshen_urls['model']) != 0:
+            Xsnvshen(xsnvshen_urls, self.output, self.log)
+        if len(junmeitu_urls['album']) != 0 or len(junmeitu_urls['model']) != 0:
+            Junmeitu(junmeitu_urls, self.output, self.log)
