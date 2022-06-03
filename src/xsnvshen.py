@@ -44,7 +44,7 @@ class Xsnvshen(Downloader):
                     self._add_error_msg(f'[WARN]: Xsnvshen album {album_path} is duplicated, skip.')
                     continue
 
-                print(f'\n\n[INFO]: Downloading images from Xsnvshen model {model_name} album {album_name} ...\n')
+                print(f'\n[INFO]: Downloading images from Xsnvshen model {model_name} album {album_name} ...\n')
                 self.headers['Referer'] = self.headers['Referer'].format(album_ids[i])
                 self._download_srcs(images, album_path, 'Xsnvshen ', self.headers)
 
@@ -71,7 +71,7 @@ class Xsnvshen(Downloader):
                 self._add_error_msg(f'[WARN]: Xsnvshen album {album_path} is duplicated, skip.')
                 continue
 
-            print(f'\n\n[INFO]: Downloading images from Xsnvshen album {album_name} ...\n')
+            print(f'\n[INFO]: Downloading images from Xsnvshen album {album_name} ...\n')
             self.headers['Referer'] = self.headers['Referer'].format(album_id)
             self._download_srcs(images, album_path, 'Xsnvshen', self.headers)
 

@@ -40,7 +40,7 @@ class KissGoddess(Downloader):
                     self._add_error_msg(f'[WARN]: KissGoddess album {album_path} is duplicated, skip.')
                     continue
 
-                print(f'\n\n[INFO]: Downloading images from KissGoddess model {model_name} album {album_name} ...\n')
+                print(f'\n[INFO]: Downloading images from KissGoddess model {model_name} album {album_name} ...\n')
                 self._download_srcs(images, album_path, 'KissGoddess')
 
         for album_url in self.album_urls:
@@ -61,7 +61,7 @@ class KissGoddess(Downloader):
                 self._add_error_msg(f'[WARN]: KissGoddess album {album_path} is duplicated, skip.')
                 continue
 
-            print(f'\n\n[INFO]: Downloading images from KissGoddess album {album_name} ...\n')
+            print(f'\n[INFO]: Downloading images from KissGoddess album {album_name} ...\n')
             self._download_srcs(images, album_path, 'KissGoddess ')
 
         self._write_log()

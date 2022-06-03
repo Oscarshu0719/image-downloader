@@ -6,6 +6,7 @@ from imgur import Imgur
 from junmeitu import Junmeitu
 from kissgoddess import KissGoddess
 from xsnvshen import Xsnvshen
+from twofourfa import TwoFourFA
 
 
 class Solver(object):
@@ -17,6 +18,7 @@ class Solver(object):
         P_X_ALBUM = r'^https://www.xsnvshen.com/album/(.*)$'
         P_J_MODEL = r'^https://www.junmeitu.com/model/(.*?)[-]?([\d+]?).html$'
         P_J_ALBUM = r'^https://www.junmeitu.com/beauty/(.*?)[-]?([\d+]?).html$'
+        P_TWOFOURFA = r'https://www.24fa.com/([A-Za-z0-9]+).aspx'
         
         R_K_ALBUM = re.compile(r'^https://tw.kissgoddess.com/album/(\d+?)(_\d+).html$', re.VERBOSE)
         R_J_MODEL = re.compile(r'^https://www.junmeitu.com/model/(.*?)(-\d+).html$', re.VERBOSE)
@@ -30,24 +32,27 @@ class Solver(object):
         kiss_urls = {'album': list(), 'model': list()}
         xsnvshen_urls = {'album': list(), 'model': list()}
         junmeitu_urls = {'album': list(), 'model': list()}
+        twofourfa_urls = list()
         for url in urls:
-            if re.search(P_IMGUR, url):
+            if re.search(P_IMGUR, url) and url not in imgur_urls:
                 imgur_urls.append(url)
-            elif re.search(P_K_ALBUM, url):
+            elif re.search(P_K_ALBUM, url) and url not in kiss_urls['album']:
                 kiss_urls['album'].append(
                     R_K_ALBUM.sub(r'https://tw.kissgoddess.com/album/\1.html', url))
-            elif re.search(P_K_MODEL, url):
+            elif re.search(P_K_MODEL, url) and url not in kiss_urls['model']:
                 kiss_urls['model'].append(url)
-            elif re.search(P_X_MODEL, url):
+            elif re.search(P_X_MODEL, url) and url not in xsnvshen_urls['model']:
                 xsnvshen_urls['model'].append(url)
-            elif re.search(P_X_ALBUM, url):
+            elif re.search(P_X_ALBUM, url) and url not in xsnvshen_urls['album']:
                 xsnvshen_urls['album'].append(url)
-            elif re.search(P_J_MODEL, url):
+            elif re.search(P_J_MODEL, url) and url not in junmeitu_urls['model']:
                 junmeitu_urls['model'].append(
                     R_J_MODEL.sub(r'https://www.junmeitu.com/model/\1.html', url))
-            elif re.search(P_J_ALBUM, url):
+            elif re.search(P_J_ALBUM, url) and url not in junmeitu_urls['album']:
                 junmeitu_urls['album'].append(
                     R_J_ALBUM.sub(r'https://www.junmeitu.com/beauty/\1.html', url))
+            elif re.search(P_TWOFOURFA, url) and url not in twofourfa_urls:
+                twofourfa_urls.append(url)
             else:
                 now = datetime.now()
                 self.error_msgs.append(f'{now.strftime("%Y/%m/%d %H:%M:%S")} - [ERR]: Failed to parse URL {url}.')
@@ -63,3 +68,5 @@ class Solver(object):
             Xsnvshen(xsnvshen_urls, self.output, self.log)
         if len(junmeitu_urls['album']) != 0 or len(junmeitu_urls['model']) != 0:
             Junmeitu(junmeitu_urls, self.output, self.log)
+        if len(twofourfa_urls) != 0:
+            TwoFourFA(twofourfa_urls, self.output, self.log)
