@@ -17,8 +17,9 @@ class TwoFourFA(Downloader):
         URL = 'https://www.24fa.com/{}.aspx'
         URL_ROOT = 'https://www.24fa.com/'
 
-        for url in self.urls:
-            print(f'\n[INFO]: Processing 24FA album URL {url} ...\n')
+        urls_num = len(self.urls)
+        for i, url in enumerate(self.urls):
+            print(f'\n[INFO]: ({i + 1}/{urls_num}) Processing 24FA album URL {url} ...\n')
 
             album_id = self.__get_album_id(url)
             if album_id == '':

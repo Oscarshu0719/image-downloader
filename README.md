@@ -6,6 +6,7 @@ Image downloader.
 - KissGoddess: http://tw.kissgoddess.com/
 - Xsnvshen: https://www.xsnvshen.com/
 - Junmeitu: https://www.junmeitu.com/
+- 24FA: https://www.24fa.com/
 
 ## Usage
 ```
