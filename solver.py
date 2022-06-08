@@ -18,7 +18,7 @@ class Solver(object):
         P_X_ALBUM = r'^https://www.xsnvshen.com/album/(.*)$'
         P_J_MODEL = r'^https://www.junmeitu.com/model/(.*?)[-]?([\d+]?).html$'
         P_J_ALBUM = r'^https://www.junmeitu.com/beauty/(.*?)[-]?([\d+]?).html$'
-        P_TWOFOURFA = r'https://www.24fa.com/([A-Za-z0-9]+).aspx'
+        P_TWOFOURFA = r'^https://www.24fa.com/n(\d+)c(\d+).aspx$'
         
         R_K_ALBUM = re.compile(r'^https://tw.kissgoddess.com/album/(\d+?)(_\d+).html$', re.VERBOSE)
         R_J_MODEL = re.compile(r'^https://www.junmeitu.com/model/(.*?)(-\d+).html$', re.VERBOSE)
