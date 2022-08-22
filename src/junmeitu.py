@@ -6,7 +6,7 @@ import requests
 from tqdm.auto import tqdm
 from typing import Tuple
 
-from downloader import Downloader
+from .downloader import Downloader
 
 
 class Junmeitu(Downloader):
@@ -81,14 +81,22 @@ class Junmeitu(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Junmeitu model URL {url} (status code: {html.status_code}).')
             return '', []
         soup = BeautifulSoup(html.text, 'lxml')
-        model_name = soup.select('.album_info > h1')[0].text.strip()
-        albums = soup.select('.pic-list > ul > li > a')
+        try:
+            model_name = soup.select('.album_info > h1')[0].text.strip()
+            albums = soup.select('.pic-list > ul > li > a')
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get Junmeitu model name/albums URL from model URL {url}.')
+            return '', []
         
         model_id = self.__get_model_id(url)
         if model_id == '':
             return '', []
 
-        album_pages = soup.select('.pages > a')
+        try: 
+            album_pages = soup.select('.pages > a')
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get Junmeitu model album number of pages from album URL {url}.')
+            return '', []
         album_page_num = 1
         if album_pages and len(album_pages) >= 3: 
             album_page_num = int(album_pages[-2].text.strip())
@@ -108,8 +116,12 @@ class Junmeitu(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Junmeitu model URL {url} (status code: {html.status_code}).')
             return []
         soup = BeautifulSoup(html.text, 'lxml')
-        
-        return soup.select('.pic-list > ul > li > a')
+
+        try:
+            return soup.select('.pic-list > ul > li > a')
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get Junmeitu model albums from model URL {url}.')
+            return []
 
     def __get_album_id(self, url: str) -> str:
         P_ALBUM = r'.*/beauty/(.*).html$'
@@ -168,8 +180,13 @@ class Junmeitu(Downloader):
                 continue
             json_image = json.loads(ajax.text)
             soup = BeautifulSoup(json_image['pic'], 'lxml')
-            image_url = soup.select('img')[0]['src'].strip()
-            images.append([image_url, f'{i}.jpg'])
+
+            try:
+                image_url = soup.select('img')[0]['src'].strip()
+                images.append([image_url, f'{i}.jpg'])
+            except:
+                self._add_error_msg(f'[WARN]: Failed to get Junmeitu image URL from album URL {image_ajax}.')
+                continue
 
             pbar.update(1)
         pbar.close()
@@ -184,7 +201,12 @@ class Junmeitu(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Junmeitu album URL {url} (status code: {html.status_code}).')
             return ''
         soup = BeautifulSoup(html.text, 'lxml')
-        model_url = soup.select('.picture-details > span > a')[0]['href'].strip()
+        
+        try: 
+            model_url = soup.select('.picture-details > span > a')[0]['href'].strip()
+        except:
+            self._add_error_msg(f'[WARN]: Failed to get Junmeitu model URL from album URL {url}.')
+            return ''
         model_id = self.__get_model_id(model_url)
 
         url = URL_MODEL.format(model_id)
@@ -193,6 +215,9 @@ class Junmeitu(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Junmeitu model URL {url} (status code: {html.status_code}).')
             return ''
         soup = BeautifulSoup(html.text, 'lxml')
-        model_name = soup.select('.album_info > h1')[0].text.strip()
 
-        return model_name
+        try: 
+            return soup.select('.album_info > h1')[0].text.strip()
+        except:
+            self._add_error_msg(f'[WARN]: Failed to get Junmeitu model name from album URL {url}.')
+            return ''

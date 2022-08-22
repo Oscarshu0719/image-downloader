@@ -4,7 +4,7 @@ import re
 import requests
 from typing import Tuple
 
-from downloader import Downloader
+from .downloader import Downloader
 
 
 class Xsnvshen(Downloader):
@@ -46,7 +46,7 @@ class Xsnvshen(Downloader):
 
                 print(f'\n[INFO]: Downloading images from Xsnvshen model {model_name} album {album_name} ...\n')
                 self.headers['Referer'] = self.headers['Referer'].format(album_ids[i])
-                self._download_srcs(images, album_path, 'Xsnvshen ', self.headers)
+                self._download_srcs(images, album_path, 'Xsnvshen', self.headers)
 
         for album_url in self.album_urls:
             print(f'\n[INFO]: Processing Xsnvshen album URL {album_url} ...\n')
@@ -83,11 +83,16 @@ class Xsnvshen(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Xsnvshen model URL {url} (status code: {html.status_code}).')
             return '', []
         soup = BeautifulSoup(html.text, 'lxml')
-        model_name_1 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(1) > span')[1].text.strip()
-        model_name_2 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(2) > span')[1].text.strip()
-        model_name = f'{model_name_1} ({model_name_2})'
 
-        albums = soup.select('.star-mod-bd > ul > li > a')
+        try: 
+            model_name_1 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(1) > span')[1].text.strip()
+            model_name_2 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(2) > span')[1].text.strip()
+            model_name = f'{model_name_1} ({model_name_2})'
+            albums = soup.select('.star-mod-bd > ul > li > a')
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get Xsnvshen model names/albums from model URL {url}.')
+            return '', []
+        
         album_ids = list()
         for album in albums:
             album_id = self.__get_album_id(album['href'])
@@ -114,10 +119,15 @@ class Xsnvshen(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Xsnvshen album URL {url} (status code: {html.status_code}).')
             return [], ''
         soup = BeautifulSoup(html.text, 'lxml')
-        album_name = soup.select('.swp-tit.layout > h1 > a')[0].text.strip()
-        span_image_num = soup.select('#time > span')[0].text
-        image_num = int(''.join([c for c in span_image_num if c.isdigit()]))
-        first_image = soup.select('.workShow > ul > li > img')[0]['src'].strip()
+
+        try:
+            album_name = soup.select('.swp-tit.layout > h1 > a')[0].text.strip()
+            span_image_num = soup.select('#time > span')[0].text
+            image_num = int(''.join([c for c in span_image_num if c.isdigit()]))
+            first_image = soup.select('.workShow > ul > li > img')[0]['src'].strip()
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get Xsnvshen album name/number of images/first image from album URL {url}.')
+            return [], ''
 
         model_id = self.__get_model_id_from_image(first_image)
         if model_id == '':
@@ -143,6 +153,12 @@ class Xsnvshen(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get Xsnvshen model URL {url} (status code: {html.status_code}).')
             return ''
         soup = BeautifulSoup(html.text, 'lxml')
-        model_name_1 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(1) > span')[1].text.strip()
-        model_name_2 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(2) > span')[1].text.strip()
-        return f'{model_name_1} ({model_name_2})'
+
+        try: 
+            model_name_1 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(1) > span')[1].text.strip()
+            model_name_2 = soup.select('.entry-baseInfo-bd > ul > li:nth-child(2) > span')[1].text.strip()
+
+            return f'{model_name_1} ({model_name_2})'
+        except: 
+            self._add_error_msg(f'[ERR]: Failed to get Xsnvshen model names from model URL {url}.')
+            return ''

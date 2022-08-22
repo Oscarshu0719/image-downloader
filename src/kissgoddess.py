@@ -1,10 +1,11 @@
+from nis import cat
 from bs4 import BeautifulSoup
 import os
 import re
 import requests
 from typing import Tuple
 
-from downloader import Downloader
+from .downloader import Downloader
 
 
 class KissGoddess(Downloader):
@@ -62,7 +63,7 @@ class KissGoddess(Downloader):
                 continue
 
             print(f'\n[INFO]: Downloading images from KissGoddess album {album_name} ...\n')
-            self._download_srcs(images, album_path, 'KissGoddess ')
+            self._download_srcs(images, album_path, 'KissGoddess')
 
         self._write_log()
 
@@ -72,10 +73,15 @@ class KissGoddess(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get KissGoddess model URL {url} (status code: {html.status_code}).')
             return '', []
         soup = BeautifulSoup(html.text, 'lxml')
-        model_name = soup.select('.person-name')[0].text.strip()
 
-        albums = soup.select('.td-module-thumb > a')
-        first_album = soup.select('.td-module-thumb > a > img')[0]['data-original'].strip()
+        try: 
+            model_name = soup.select('.person-name')[0].text.strip()
+            albums = soup.select('.td-module-thumb > a')
+            first_album = soup.select('.td-module-thumb > a > img')[0]['data-original'].strip()
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get KissGoddess model name/albums/first album from URL {url}.')
+            return '', []
+
         if len(albums) >= 10:
             more_albums, model_id = self.__get_more_albums(url, first_album)
             if len(more_albums) == 0 or model_id == '':
@@ -106,9 +112,12 @@ class KissGoddess(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get KissGoddess more album from URL {url} (status code: {html.status_code}).')
             return [], ''
         soup = BeautifulSoup(html.text, 'lxml')
-        albums = soup.select('.td-module-thumb > a')
 
-        return albums, model_id
+        try: 
+            return soup.select('.td-module-thumb > a'), model_id
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get KissGoddess albums/model ID from URL {url}.')
+            return [], ''
 
     def __get_album_id(self, url: str) -> str:
         P_ALBUM = r'.*/album/(\d+).html$'
@@ -131,8 +140,13 @@ class KissGoddess(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get KissGoddess album URL {url} (status code: {html.status_code}).')
             return [], ''
         soup = BeautifulSoup(html.text, 'lxml')
-        album_name = soup.select('.entry-title')[0].text.strip()
-        page_num = int(soup.select('#pages > span')[1].text[-1])
+        
+        try: 
+            album_name = soup.select('.entry-title')[0].text.strip()
+            page_num = int(soup.select('#pages > span')[1].text[-1])
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get KissGoddess album name/number of pages from album URL {url}.')
+            return [], ''
 
         last_page_url = URL_ALBUM.format(f'{album_id}_{page_num}')
         html = requests.get(last_page_url)
@@ -140,7 +154,13 @@ class KissGoddess(Downloader):
             self._add_error_msg(f'[ERR]: Failed to get KissGoddess last page of album URL {url} (status code: {html.status_code}).')
             return [], ''
         soup = BeautifulSoup(html.text, 'lxml')
-        last_image = soup.select('.td-gallery-content > img')[-1]
+
+        try: 
+            last_image = soup.select('.td-gallery-content > img')[-1]
+        except:
+            self._add_error_msg(f'[ERR]: Failed to get KissGoddess last image from album URL {url}.')
+            return [], ''
+
         try:
             last_image_url = last_image['src'].strip()
         except:

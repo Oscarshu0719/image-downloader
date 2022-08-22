@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-from downloader import Downloader
+from .downloader import Downloader
 
 
 class Imgur(Downloader):
@@ -18,13 +18,18 @@ class Imgur(Downloader):
                 self._add_error_msg(f'[ERR]: Failed to get Imgur URL {url} (status code: {html.status_code}).')
                 continue
             soup = BeautifulSoup(html.text, 'lxml')
-            image = soup.find("meta", property="og:image")
-            video = soup.find("meta", property="og:video")
+            
+            try:
+                image = soup.find("meta", property="og:image")
+                video = soup.find("meta", property="og:video")
 
-            if video:
-                srcs.append(video['content'].strip())
-            else:
-                srcs.append(image['content'].strip())
+                if video:
+                    srcs.append(video['content'].strip())
+                else:
+                    srcs.append(image['content'].strip())
+            except:
+                self._add_error_msg(f'[ERR]: Failed to get image/video src from Imgur URL {url}.')
+                continue
 
         src_tuples = list()
         for src in srcs:

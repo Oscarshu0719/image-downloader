@@ -37,3 +37,9 @@ build/
 
 ### NPM ###
 /node_modules/
+
+### Python ###
+**/__pycache__/**
+
+### Self-defined ###
+**/output/**

@@ -2,9 +2,8 @@ from bs4 import BeautifulSoup
 import os
 import re
 import requests
-from tqdm.auto import tqdm
 
-from downloader import Downloader
+from .downloader import Downloader
 
 
 class TwoFourFA(Downloader):
@@ -31,12 +30,17 @@ class TwoFourFA(Downloader):
                 self._add_error_msg(f'[ERR]: Failed to get 24FA URL {url} (status code: {html.status_code}).')
                 continue
             soup = BeautifulSoup(html.text, 'lxml')
-            imgs = soup.select('#content > div > div > img')
-            if len(imgs) == 0:
-                imgs = soup.select('#content > div > p > img')
-            img_srcs = [img['src'] for img in imgs]
-            title = soup.select('.title2')[0].text
-            page_num = int(soup.select('.pager > ul > li:nth-last-child(3)')[0].text)
+
+            try: 
+                imgs = soup.select('#content > div > div > img')
+                if len(imgs) == 0:
+                    imgs = soup.select('#content > div > p > img')
+                img_srcs = [img['src'] for img in imgs]
+                title = soup.select('.title2')[0].text
+                page_num = int(soup.select('.pager > ul > li:nth-last-child(3)')[0].text)
+            except:
+                self._add_error_msg(f'[ERR]: Failed to get 24FA album images/title/number of pages from album URL {url}.')
+                continue
 
             dir_name = self._get_valid_name(title)
             album_path = os.path.join(self.output, dir_name)
@@ -48,15 +52,20 @@ class TwoFourFA(Downloader):
                 page_url = URL.format(album_id + f'p{page}')
                 response = requests.get(page_url)
                 soup = BeautifulSoup(response.text, 'lxml')
-                imgs = soup.select('#content > div > div > img')
-                if len(imgs) == 0:
-                    imgs = soup.select('#content > div > p > img')
-                img_srcs.extend([img['src'] for img in imgs])
+
+                try: 
+                    imgs = soup.select('#content > div > div > img')
+                    if len(imgs) == 0:
+                        imgs = soup.select('#content > div > p > img')
+                    img_srcs.extend([img['src'] for img in imgs])
+                except:
+                    self._add_error_msg(f'[ERR]: Failed to get 24FA images from album URL {page_url}.')
+                    continue
 
             
             images = [[URL_ROOT + img_src, f'{i + 1}.png'] for i, img_src in enumerate(img_srcs)]
             print(f'\n[INFO]: Downloading images from 24FA album {url} ...\n')
-            self._download_srcs(images, album_path, '24FA ')
+            self._download_srcs(images, album_path, '24FA')
 
     def __get_album_id(self, url: str) -> str:
         P_ALBUM = r'https://www.24fa.com/(.*).aspx'
